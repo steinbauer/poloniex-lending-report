@@ -161,6 +161,15 @@ class Poloniex
         return $trades;
     }
 
+    public function get_lending_history()
+    {
+        return $this->query(
+            array(
+                'command' => 'returnLendingHistory'
+            )
+        );
+    }
+
     public function get_order_book($pair)
     {
         $orders = $this->retrieveJSON($this->public_url . '?command=returnOrderBook&currencyPair=' . strtoupper($pair));
