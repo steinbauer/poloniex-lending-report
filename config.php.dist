@@ -4,4 +4,6 @@ $key = '';
 $api_secret = '';
 $email = '';
 $lastDay = 7;
-$formatDate = 'Y-m-d'; //EU: j.n.Y , US: m/d/Y
+$formatDateDay = 'j.n.Y'; //EU: j.n.Y , US: m/d/Y
+$formatDateMonth = 'n.Y'; //EU: n.Y , US: m/Y
+

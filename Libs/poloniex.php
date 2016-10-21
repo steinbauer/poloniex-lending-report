@@ -88,6 +88,42 @@ class Poloniex
         );
     }
 
+    public function get_complete_balances()
+    {
+        return $this->query(
+            array(
+                'command' => 'returnCompleteBalances'
+            )
+        );
+    }
+
+    public function get_deposits_withdrawals()
+    {
+        return $this->query(
+            array(
+                'command' => 'returnDepositsWithdrawals'
+            )
+        );
+    }
+
+    public function get_tradable_balances()
+    {
+        return $this->query(
+            array(
+                'command' => 'returnTradableBalances'
+            )
+        );
+    }
+
+    public function get_margin_account_summary()
+    {
+        return $this->query(
+            array(
+                'command' => 'returnMarginAccountSummary'
+            )
+        );
+    }
+
     public function get_open_orders($pair)
     {
         return $this->query(
