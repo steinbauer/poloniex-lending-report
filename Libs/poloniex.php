@@ -165,7 +165,8 @@ class Poloniex
     {
         return $this->query(
             array(
-                'command' => 'returnLendingHistory'
+                'command' => 'returnLendingHistory',
+                'limit' => '10000'
             )
         );
     }
