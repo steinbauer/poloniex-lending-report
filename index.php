@@ -12,12 +12,16 @@ $poloniex = new Poloniex($key, $api_secret);
 
 //loading deposits
 
-//loading lendings
-$lendingHistory = $poloniex->get_lending_history();
-//echo '<pre>'; print_r($lendingHistory);
+//loading value
+$ticker = $poloniex->get_ticker();
+$btc = $ticker["USDT_BTC"]["last"];
 
 $balanceAll = $poloniex->get_balances();
 $balance = $balanceAll["BTC"];
+
+//loading lendings
+$lendingHistory = $poloniex->get_lending_history();
+//echo '<pre>'; print_r($lendingHistory);
 
 
 //echo('<pre>'); print_r($poloniex->get_balances());
@@ -55,7 +59,7 @@ foreach ($lendingHistory AS $oneLending) {
 $template = '<html><head><title>Poloniex: lending report</title></head><body><div id="mail">';
 $template .= 'Work in progress, sorry<hr />';
 $template .= '<h1>Poloniex: lending report</h1>';
-$template .= 'Balance: ' . printBTC(convertBtcToSatoshi($balance)) . ' BTC<br />';
+$template .= 'Balance: ' . printBTC(convertBtcToSatoshi($balance)) . ' BTC, ~' .printDolar($balance*$btc) .'$<br />';
 $template .= templateStyle();
 
 //day
@@ -65,7 +69,7 @@ if ($countDay > 0) {
     $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th></tr>';
     $i = 0;
     foreach ($lendingsDay AS $date => $oneLending) {
-        $template .= '<tr><td>' . date($formatDateDay, strtotime($date)) . '</td><td>' . printBTC($oneLending) . '</td><td>-</td></tr>';
+        $template .= '<tr><td>' . date($formatDateDay, strtotime($date)) . '</td><td>' . printBTC($oneLending) . ' BTC</td><td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td></tr>';
         $i++;
         if ($i >= $countDay) break;
     }
@@ -77,7 +81,7 @@ if (count($lendingsMonth) > 0) {
     $template .= '<h2>last ' . count($lendingsMonth) . ' month(s)</h2>';
     $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th></tr>';
     foreach ($lendingsMonth AS $date => $oneLending) {
-        $template .= '<tr><td>' . date($formatDateMonth, strtotime($date)) . '</td><td>' . printBTC($oneLending) . '</td><td>-</td></tr>';
+        $template .= '<tr><td>' . date($formatDateMonth, strtotime($date)) . '</td><td>' . printBTC($oneLending) . ' BTC</td><td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td></tr>';
     }
     $template .= '</table>';
 }
@@ -87,7 +91,7 @@ if (count($lendingsYear) > 0) {
     $template .= '<h2>last ' . count($lendingsYear) . ' year(s)</h2>';
     $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th></tr>';
     foreach ($lendingsYear AS $date => $oneLending) {
-        $template .= '<tr><td>' . date("Y", strtotime($date)) . '</td><td>' . printBTC($oneLending) . '</td><td>-</td></tr>';
+        $template .= '<tr><td>' . date("Y", strtotime($date)) . '</td><td>' . printBTC($oneLending) . ' BTC</td><td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td></tr>';
     }
     $template .= '</table>';
 }

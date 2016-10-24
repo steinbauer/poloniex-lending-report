@@ -10,6 +10,16 @@ function printBTC($value)
     return number_format(($value) * (pow(10, -8)), 8, '.', '');
 }
 
+function printDolar($value)
+{
+    return number_format($value, 2, '.', '');
+}
+
+function convertSatoshiToBtc($value)
+{
+    return $value/100000000;
+}
+
 function templateStyle()
 {
     $template = '<style>
