@@ -20,6 +20,16 @@ function convertSatoshiToBtc($value)
     return $value/100000000;
 }
 
+function checkCurrency($currency) {
+    $currencys = file('http://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.txt');
+    foreach ($currencys as $v) {
+        $h = explode("|", $v);
+        if ((count($h) >= 5) && ($h[3] == $currency)) {
+            return str_replace(",", '.', $h[4]);
+        }
+    }
+}
+
 function templateStyle()
 {
     $template = '<style>

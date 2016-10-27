@@ -19,6 +19,10 @@ $btc = $ticker["USDT_BTC"]["last"];
 $balanceAll = $poloniex->get_balances();
 $balance = $balanceAll["BTC"];
 
+if($czechCurrencyConversion) {
+    $czechCurrency = checkCurrency('USD');
+}
+
 //loading lendings
 $lendingHistory = $poloniex->get_lending_history();
 //echo '<pre>'; print_r($lendingHistory);
@@ -33,8 +37,8 @@ $lendingsMonth = array();
 $lendingsYear = array();
 foreach ($lendingHistory AS $oneLending) {
     if ($oneLending["currency"] == "BTC") {
-        $day = date('Ymd', strtotime($oneLending["close"]));
-        $month = date('Ym', strtotime($oneLending["close"]));
+        $day = date('Y-m-d', strtotime($oneLending["close"]));
+        $month = date('Y-m', strtotime($oneLending["close"]));
         $year = date('Y', strtotime($oneLending["close"]));
         if (isset($lendingsDay[$day])) {
             $lendingsDay[$day] += convertBtcToSatoshi($oneLending["earned"]);
@@ -66,10 +70,29 @@ $template .= templateStyle();
 $countDay = min($lastDay, count($lendingsDay));
 if ($countDay > 0) {
     $template .= '<h2>last ' . $countDay . ' day(s)</h2>';
-    $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th></tr>';
+    $template .= '<table><tr>';
+    $template .= '<th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th>';
+    if($czechCurrency) {
+        $template .= '<th>CZK (today\'s rate)</th>';
+    }
+    $template .= '</tr>';
+
+
+
     $i = 0;
     foreach ($lendingsDay AS $date => $oneLending) {
-        $template .= '<tr><td>' . date($formatDateDay, strtotime($date)) . '</td><td>' . printBTC($oneLending) . ' BTC</td><td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td></tr>';
+        $template .= '<tr>';
+        $template .= '
+            <td>' . date($formatDateDay, strtotime($date)) . '</td>
+            <td>' . printBTC($oneLending) . ' BTC</td>
+            <td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td>';
+        if($czechCurrency) {
+            $template .= '<td>' .printDolar(convertSatoshiToBtc($oneLending)*$btc*$czechCurrency) .',-</td>';
+        }
+        $template .= '</tr>';
+
+
+
         $i++;
         if ($i >= $countDay) break;
     }
@@ -79,9 +102,17 @@ if ($countDay > 0) {
 //month
 if (count($lendingsMonth) > 0) {
     $template .= '<h2>last ' . count($lendingsMonth) . ' month(s)</h2>';
-    $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th></tr>';
+    $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th>';
+    if($czechCurrency) {
+        $template .= '<th>CZK (today\'s rate)</th>';
+    }
+    $template .= '</tr>';
     foreach ($lendingsMonth AS $date => $oneLending) {
-        $template .= '<tr><td>' . date($formatDateMonth, strtotime($date)) . '</td><td>' . printBTC($oneLending) . ' BTC</td><td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td></tr>';
+        $template .= '<tr><td>' . date($formatDateMonth, strtotime($date .'-01')) . '</td><td>' . printBTC($oneLending) . ' BTC</td><td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td>';
+        if($czechCurrency) {
+            $template .= '<td>' .printDolar(convertSatoshiToBtc($oneLending)*$btc*$czechCurrency) .',-</td>';
+        }
+        $template .= '</tr>';
     }
     $template .= '</table>';
 }
@@ -89,17 +120,33 @@ if (count($lendingsMonth) > 0) {
 //year
 if (count($lendingsYear) > 0) {
     $template .= '<h2>last ' . count($lendingsYear) . ' year(s)</h2>';
-    $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th></tr>';
+    $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th>';
+    if($czechCurrency) {
+        $template .= '<th>CZK (today\'s rate)</th>';
+    }
+    $template .= '</tr>';
     foreach ($lendingsYear AS $date => $oneLending) {
-        $template .= '<tr><td>' . date("Y", strtotime($date)) . '</td><td>' . printBTC($oneLending) . ' BTC</td><td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td></tr>';
+        $template .= '<tr><td>' . date("Y", strtotime($date .'-01-01')) . '</td><td>' . printBTC($oneLending) . ' BTC</td><td>~' .printDolar(convertSatoshiToBtc($oneLending)*$btc) .'$</td>';
+        if($czechCurrency) {
+            $template .= '<td>' .printDolar(convertSatoshiToBtc($oneLending)*$btc*$czechCurrency) .',-</td>';
+        }
+        $template .= '</tr>';
     }
     $template .= '</table>';
 }
 
 if (count($lendingsYear) > 1) {
     $template .= '<h2>Lending sum</h2>';
-    $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th></tr>';
-    $template .= '<tr><td>sum</td><td>' . printBTC($lendingsSuma) . '</td><td>-</td></tr>';
+    $template .= '<table><tr><th class="date">date</th><th>BTC</th><th>USD (today\'s rate)</th>';
+    if($czechCurrency) {
+        $template .= '<th>CZK (today\'s rate)</th>';
+    }
+    $template .= '</tr>';
+    $template .= '<tr><td>sum</td><td>' . printBTC($lendingsSuma) . '</td><td>-</td>';
+        if($czechCurrency) {
+            $template .= '<td>' .printDolar(convertSatoshiToBtc($oneLending)*$btc*$czechCurrency) .',-</td>';
+        }
+        $template .= '</tr>';
     $template .= '</table>';
 }
 
@@ -107,8 +154,5 @@ if (count($lendingsYear) > 1) {
 $template .= '</div></body>';
 
 //sending or printing
-//echo '<pre>'; print_r($lendingsDay);
-//echo '<pre>'; print_r($lendingsMonth);
-//echo '<pre>'; print_r($lendingsYear);
-//echo '<pre>'; print_r($lendingsSuma);
+//WIP - only printing
 echo $template;
